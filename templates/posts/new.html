@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}写真を投稿{% endblock %}
+{% block content %}
+<section class="auth-layout">
+    <aside class="auth-intro"><p class="eyebrow">写真を共有する</p><h2>あなたの一枚が、<br>日々をつなぐ。</h2><p>旅の景色も、何気ない日常も。<br>心に残った瞬間をシェアしましょう。</p></aside>
+    <div class="auth-card"><p class="eyebrow">新しい投稿</p><h1>写真を投稿</h1>
+        <form method="post" enctype="multipart/form-data" class="auth-form">
+            {{ form.hidden_tag() }}
+            <div class="field-group">{{ form.photo.label }}
+                {{ form.photo(accept='.png,.jpg,.jpeg,.gif', aria_describedby='photo-help') }}
+                <p class="field-help" id="photo-help">写真1枚・5MBまで。PNG / JPG / JPEG / GIFに対応。GIFは先頭の1コマを静止画として保存します。</p>
+                {% for error in form.photo.errors %}<p class="field-error" role="alert">{{ error }}</p>{% endfor %}
+            </div>
+            <div class="field-group">{{ form.caption.label }}{{ form.caption(rows=4, maxlength=140, aria_describedby='caption-help') }}
+                <p class="field-help" id="caption-help">140文字まで。写真とキャプションは誰でも閲覧できます。</p>
+                {% for error in form.caption.errors %}<p class="field-error" role="alert">{{ error }}</p>{% endfor %}
+            </div>
+            {{ form.submit(class_='button button-dark button-full') }}
+        </form>
+        <p class="auth-switch"><a href="{{ url_for('post_index') }}">投稿せずトップへ戻る</a></p>
+    </div>
+</section>
+{% endblock %}

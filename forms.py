@@ -1,4 +1,7 @@
 from flask_wtf import FlaskForm
+from flask_wtf.file import FileField, FileRequired, FileAllowed
+from wtforms import TextAreaField
+from wtforms.validators import Optional
 from wtforms import PasswordField, StringField, SubmitField
 from wtforms.validators import Email, InputRequired, Length
 
@@ -31,3 +34,12 @@ class LoginForm(FlaskForm):
 
 class LogoutForm(FlaskForm):
     submit = SubmitField('ログアウト')
+
+
+class PostForm(FlaskForm):
+    photo = FileField('写真', validators=[
+        FileRequired('写真を1枚選択してください。'),
+        FileAllowed(['png', 'jpg', 'jpeg', 'gif'], 'PNG・JPG・JPEG・GIFのみ投稿できます。')])
+    caption = TextAreaField('キャプション（任意）', validators=[
+        Optional(strip_whitespace=False), Length(max=140, message='キャプションは140文字以内で入力してください。')])
+    submit = SubmitField('投稿する')

@@ -1,14 +1,25 @@
 {% extends "base.html" %}
+{% block title %}ユーザー登録{% endblock %}
 {% block content %}
-<h1>ユーザー登録</h1>
-<form method="post">
-    {{ form.hidden_tag() }}
-    {% for field in [form.username, form.email, form.password] %}
-    <p>{{ field.label }} {{ field() }}</p>
-    {% for error in field.errors %}<p role="alert">{{ error }}</p>{% endfor %}
-    {% endfor %}
-    <p>ユーザー名は1〜50文字（大文字・小文字を区別）。パスワードはちょうど4文字です。</p>
-    {{ form.submit() }}
-</form>
-<p><a href="{{ url_for('login') }}">ログインはこちら</a></p>
+<section class="auth-layout">
+    <aside class="auth-intro"><p class="eyebrow">START Yみんなの写真</p><h2>あなたの日々に、<br>小さな<span class="accent">「共有」</span>を。</h2><p>大切にしたい瞬間を、<br>大切な人と。</p><span class="intro-decoration" aria-hidden="true">◯</span><span class="small-label">SNAP. / JOIN US</span></aside>
+    <div class="auth-card"><p class="eyebrow">アカウントの作成</p><h1>ユーザー登録</h1><p class="form-description">あなたのアカウントを作成します。</p>
+        <form method="post" class="auth-form">
+            {{ form.hidden_tag() }}
+            {% for field in [form.username, form.email, form.password] %}
+            <div class="field-group">
+                {{ field.label }}
+                <div class="input-wrap">
+                    {{ field(autocomplete=('new-password' if field.name == 'password' else field.name), aria_describedby=field.name ~ '-help', aria_invalid=('true' if field.errors else 'false')) }}
+                    {% if field.name == 'password' %}<button type="button" class="password-toggle" data-password-toggle="{{ field.id }}" aria-label="パスワードを表示する" aria-pressed="false" hidden>表示</button>{% endif %}
+                </div>
+                <p class="field-help" id="{{ field.name }}-help">{% if field.name == 'username' %}1〜50文字。大文字・小文字を区別します。{% elif field.name == 'email' %}ログインに使用します。公開されません。{% else %}パスワードはちょうど4文字で入力してください。{% endif %}</p>
+                {% for error in field.errors %}<p class="field-error" role="alert">{{ error }}</p>{% endfor %}
+            </div>
+            {% endfor %}
+            {{ form.submit(class_='button button-dark button-full') }}
+        </form>
+        <p class="auth-switch">すでにアカウントをお持ちの方 <a href="{{ url_for('login') }}">ログイン ↗</a></p>
+    </div>
+</section>
 {% endblock %}

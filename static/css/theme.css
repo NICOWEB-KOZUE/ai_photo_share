@@ -1,0 +1,97 @@
+/* 「みさとと。」の軽やかな文字と自然の色から着想したテーマ。
+   元サイトのフォント・画像・コードは使用しない。 */
+:root {
+    --paper: #fef9f3;
+    --ink: #2d2927;
+    --muted: #6b6960;
+    --line: #deded0;
+    --accent: #32645a;
+    --white: #fffdf9;
+}
+body {
+    font-family: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", Meiryo, sans-serif;
+    font-weight: 300;
+    letter-spacing: .04em;
+    background: var(--paper);
+}
+::selection { background: #ffc8b8; color: var(--ink); }
+.site-header { border: 0; min-height: 116px; }
+.brand { font-size: 36px; font-weight: 400; letter-spacing: .03em; }
+.brand-caption { font-weight: 300; letter-spacing: .12em; }
+.main-nav { font-weight: 400; }
+.button { border-radius: 40px; font-weight: 400; letter-spacing: .08em; transition: background .3s, color .3s, transform .3s; }
+.button-dark { background: var(--accent); border-color: var(--accent); }
+.button-dark:hover { background: #244e46; }
+.button-outline:hover { background: #ecefdc; }
+.hero { gap: 3%; padding-top: 48px; padding-bottom: 95px; align-items: center; }
+.hero h1 { font-weight: 300; font-size: clamp(26px, 3.05vw, 46px); letter-spacing: .06em; line-height: 1.85; white-space: normal; }
+.eyebrow { font-size: 12px; font-weight: 300; letter-spacing: .13em; }
+.hero-description { font-size: 14px; line-height: 2.4; font-weight: 300; letter-spacing: .04em; }
+.hero-bottom { margin-top: 38px; }
+.text-link { padding-bottom: 12px; border-color: #85958c; transition: color .25s, gap .25s; }
+.text-link:hover { gap: 43px; }
+.landscape-scene { height: 460px; min-height: 0; border-radius: 49% 49% 43% 44%; background: #f6d9c9; isolation: isolate; }
+.scene-sun { position: absolute; width: 84px; height: 84px; left: 20%; top: 13%; border-radius: 50%; background: #f4af93; }
+.scene-cloud { position: absolute; width: 130px; height: 29px; background: #fff6e9; border-radius: 50%; }
+.scene-cloud::before { content: ""; position: absolute; background: inherit; border-radius: 50%; width: 70px; height: 36px; left: 32px; bottom: 4px; }
+.cloud-one { top: 23%; left: 50%; animation: cloud-arrive 4s ease-out both; }
+.cloud-two { top: 40%; left: 10%; transform: scale(.6); animation: cloud-arrive 5s ease-out both; }
+.scene-hill { position: absolute; width: 120%; height: 62%; border-radius: 50% 50% 0 0; bottom: -18%; }
+.hill-back { background: #b4c29d; right: -28%; bottom: -10%; transform: rotate(-18deg); }
+.hill-front { background: #668b76; left: -50%; transform: rotate(23deg); }
+.scene-river { position: absolute; width: 16%; height: 75%; background: #c4dad2; bottom: -55%; left: 55%; border-radius: 80% 20% 0 0; transform: rotate(20deg); }
+.scene-memory { position: absolute; width: 39%; height: 48%; top: 27%; left: 40%; padding: 12px; background: #fffcf7; transform: rotate(9deg); box-shadow: 4px 12px 28px #394e4520; animation: memory-arrive 1.4s ease-out both; }
+.memory-sky { display: block; height: 80%; background: radial-gradient(ellipse at 20% 110%, #718a70 0 42%, transparent 43%), radial-gradient(ellipse at 90% 100%, #a6b78d 0 45%, transparent 46%), linear-gradient(#ccdfdf 0 58%, #f3e7c9 58%); }
+.memory-caption { display: block; text-align: center; margin-top: 10px; font-size: 9px; letter-spacing: .08em; }
+.scene-note { position: absolute; bottom: 6%; left: 19%; color: #fffdf9; font-size: 12px; letter-spacing: .17em; }
+.gallery { padding-top: 45px; margin-bottom: 90px; border-top: 1px solid var(--line); }
+.section-heading h2 { font-weight: 300; font-size: 29px; letter-spacing: .12em; }
+.section-heading h2 .accent { display: none; }
+.section-number { letter-spacing: .12em; }
+.empty-gallery { border: none; background: #eef0e4; border-radius: 43% 43% 8px 8px / 35px 35px 8px 8px; padding: 50px 20px; }
+.empty-gallery h3 { font-weight: 400; }
+.post-grid { gap: 45px 30px; margin-top: 45px; align-items: start; }
+.post-card { border: none; background: transparent; }
+.post-card:nth-child(3n+2) { margin-top: 48px; }
+.post-card img { border-radius: 4px; background: #eef0e4; transition: transform .65s ease; }
+.post-card:hover img { transform: translateY(-5px); }
+.post-content { padding: 21px 3px; }
+.post-meta strong { font-weight: 500; }
+.post-caption { font-weight: 300; line-height: 2.2; }
+.auth-card { border: 1px solid var(--line); border-radius: 14px; background: #fffdf9; }
+.auth-card h1, .auth-intro h2 { font-weight: 300; letter-spacing: .08em; }
+.auth-intro h2 { line-height: 2; }
+.intro-decoration { font-weight: 300; color: #d6dfc2; }
+.input-wrap input, .field-group textarea { background: #fffdf9; border-color: #c3c9b9; border-radius: 5px; }
+.input-wrap input:focus, .field-group textarea:focus { border-color: var(--accent); }
+.field-group label { font-weight: 400; }
+.site-footer { border-color: var(--line); }
+.footer-brand { font-weight: 400; letter-spacing: .04em; }
+.back-top { border-radius: 50%; }
+/* JSが動く環境でだけ、画面内に入る要素を一度表示する。 */
+[data-reveal].reveal-pending { opacity: 0; transform: translateY(22px); }
+[data-reveal] { transition: opacity .85s ease, transform .85s ease; }
+@keyframes cloud-arrive { from { opacity: 0; translate: -30px 0; } to { opacity: 1; translate: 0 0; } }
+@keyframes memory-arrive { from { opacity: 0; translate: 0 20px; rotate: -5deg; } to { opacity: 1; translate: 0 0; rotate: 0deg; } }
+@media (max-width: 850px) {
+    .landscape-scene { height: 350px; }
+    .hero h1 { font-size: 30px; }
+    .post-card:nth-child(3n+2) { margin-top: 0; }
+    .post-card:nth-child(2n) { margin-top: 30px; }
+}
+@media (max-width: 620px) {
+    .site-header { min-height: 90px; }
+    .brand { font-size: 29px; }
+    .hero { padding-top: 25px; padding-bottom: 50px; }
+    .hero h1 { font-size: clamp(25px, 6.7vw, 36px); line-height: 1.9; }
+    .hero-description { font-size: 12px; }
+    .landscape-scene { height: 330px; width: 100%; max-width: 420px; margin: 15px auto 0; }
+    .section-heading h2 { font-size: 24px; }
+    .post-card:nth-child(2n) { margin-top: 0; }
+    .post-grid { gap: 28px; }
+    .auth-intro h2 { font-size: 25px; }
+}
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+    [data-reveal].reveal-pending { opacity: 1; transform: none; }
+}

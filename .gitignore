@@ -26,3 +26,7 @@ __pycache__/
 
 # Flaskの実行時データ
 /instance/
+
+# 投稿画像（フォルダーの目印だけ共有）
+/uploads/posts/*
+!/uploads/posts/.gitkeep

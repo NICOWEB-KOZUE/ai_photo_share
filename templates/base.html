@@ -3,27 +3,37 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>写真共有アプリ</title>
+    <meta name="theme-color" content="#fef9f3">
+    <title>{% block title %}写真共有アプリ{% endblock %} | SNAP.</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/theme.css') }}">
+    <script src="{{ url_for('static', filename='js/app.js') }}" defer></script>
 </head>
 <body>
-    <nav>
-        <a href="{{ url_for('post_index') }}">トップ</a>
-        {% if current_user.is_authenticated %}
-        <span>{{ current_user.username }} さん</span>
-        <form method="post" action="{{ url_for('logout') }}">
-            {{ logout_form.hidden_tag() }}
-            {{ logout_form.submit() }}
-        </form>
-        {% else %}
-        <a href="{{ url_for('register') }}">ユーザー登録</a>
-        <a href="{{ url_for('login') }}">ログイン</a>
-        {% endif %}
-    </nav>
-    {% for message in get_flashed_messages() %}
-    <p role="status">{{ message }}</p>
-    {% endfor %}
-    <main>
-        {% block content %}{% endblock %}
-    </main>
+    <a class="skip-link" href="#main">本文へスキップ</a>
+    <header class="site-header">
+        <a class="brand" href="{{ url_for('post_index') }}" aria-label="SNAP. トップページ">SNAP<span>.</span></a>
+        <span class="brand-caption">写真でつながる、日々をつくる。</span>
+        <nav class="main-nav" aria-label="メインメニュー">
+            {% if current_user.is_authenticated %}
+            <a class="nav-link" href="{{ url_for('post_create') }}">写真を投稿</a>
+            <span class="user-name">{{ current_user.username }} さん</span>
+            <form method="post" action="{{ url_for('logout') }}">
+                {{ logout_form.hidden_tag() }}
+                {{ logout_form.submit(class_='button button-outline button-small') }}
+            </form>
+            {% else %}
+            <a class="nav-link" href="{{ url_for('login') }}" {% if request.endpoint == 'login' %}aria-current="page"{% endif %}>ログイン</a>
+            <a class="button button-dark button-small" href="{{ url_for('register') }}">ユーザー登録 <span aria-hidden="true">↗</span></a>
+            {% endif %}
+        </nav>
+    </header>
+    <div class="notices">
+        {% for message in get_flashed_messages() %}
+        <div class="notice" role="status"><span>{{ message }}</span><button type="button" data-dismiss aria-label="通知を閉じる">×</button></div>
+        {% endfor %}
+    </div>
+    <main id="main">{% block content %}{% endblock %}</main>
+    <footer class="site-footer"><a class="footer-brand" href="{{ url_for('post_index') }}">SNAP.</a><span>写真共有アプリ</span><span class="footer-note">日々の写真を、大切な人と。</span><button class="back-top" type="button" data-back-top aria-label="ページの先頭へ">↑</button></footer>
 </body>
 </html>

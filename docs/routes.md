@@ -15,6 +15,7 @@
 
 | URL | HTTPメソッド | エンドポイント名 | 目的・処理 | ログイン | テンプレート／成功後の遷移 |
 | --- | --- | --- | --- | --- | --- |
+| `/uploads/posts/<filename>` | GET | `uploaded_file` | 投稿に紐づく画像を配信 | 不要 | テンプレートなし。存在しなければ404 |
 | `/` | GET | `post_index` | 投稿を新しい順に取得・表示 | 不要 | `posts/index.html` |
 | `/register` | GET | `register` | 登録フォームを表示 | 不要 | `auth/register.html` |
 | `/register` | POST | `register` | 入力を検証し、ユーザーを登録 | 不要 | `/login` へリダイレクト |
@@ -76,7 +77,7 @@ CSRF検証があるPOSTでは、不正なトークンを400として拒否する
 | `posts/detail.html` | 対象の投稿と投稿者の `username`、ログイン中のユーザーが削除できるかどうか |
 | `errors/error.html` | HTTPステータスに応じた案内、安全な戻り先リンク |
 
-写真URLは保存済み画像を表示するためのURLであり、投稿詳細URLとは別。画像の保存先と配信方法は実装設計で決める。メールアドレスやパスワードハッシュは公開画面へ出力しない。
+写真URLは保存済み画像を表示するためのURLであり、投稿詳細URLとは別。画像はプロジェクト直下のuploads/posts/に保存し、GET /uploads/posts/<filename>（uploaded_file、ログイン不要）からsend_from_directoryで配信する。DBに対応投稿がない画像は404とする。メールアドレスやパスワードハッシュは公開画面へ出力しない。
 
 ## 6. 画面遷移の確認項目
 

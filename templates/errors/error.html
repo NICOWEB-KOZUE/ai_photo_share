@@ -1,6 +1,9 @@
 {% extends "base.html" %}
 {% block content %}
-<h1>送信を確認できませんでした</h1>
+<section class="error-page">
+<h1>処理を完了できませんでした</h1>
 <p role="alert">{{ message }}</p>
+{% if retry_upload %}<p><a href="{{ url_for('post_create') }}">写真を選び直す</a></p>{% endif %}
 <a href="{{ url_for('post_index') }}">トップへ戻る</a>
+</section>
 {% endblock %}

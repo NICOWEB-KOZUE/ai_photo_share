@@ -1,13 +1,24 @@
 {% extends "base.html" %}
+{% block title %}ログイン{% endblock %}
 {% block content %}
-<h1>ログイン</h1>
-<form method="post">
-    {{ form.hidden_tag() }}
-    {% for field in [form.email, form.password] %}
-    <p>{{ field.label }} {{ field() }}</p>
-    {% for error in field.errors %}<p role="alert">{{ error }}</p>{% endfor %}
-    {% endfor %}
-    {{ form.submit() }}
-</form>
-<p><a href="{{ url_for('register') }}">ユーザー登録はこちら</a></p>
+<section class="auth-layout">
+    <aside class="auth-intro"><p class="eyebrow">おかえりなさい</p><h2>おかえりなさい。<br>今日も、<span class="accent">あなたらしく。</span></h2><p>何気ない一日も、<br>いつか大切な思い出に。</p><span class="intro-decoration" aria-hidden="true">◯</span><span class="small-label">SNAP. / SIGN IN</span></aside>
+    <div class="auth-card"><p class="eyebrow">アカウントをお持ちの方へ</p><h1>ログイン</h1><p class="form-description">登録したメールアドレスでログインしてください。</p>
+        <form method="post" class="auth-form">
+            {{ form.hidden_tag() }}
+            {% for field in [form.email, form.password] %}
+            <div class="field-group">
+                {{ field.label }}
+                <div class="input-wrap">
+                    {{ field(autocomplete=('current-password' if field.name == 'password' else 'email'), aria_invalid=('true' if field.errors else 'false')) }}
+                    {% if field.name == 'password' %}<button type="button" class="password-toggle" data-password-toggle="{{ field.id }}" aria-label="パスワードを表示する" aria-pressed="false" hidden>表示</button>{% endif %}
+                </div>
+                {% for error in field.errors %}<p class="field-error" role="alert">{{ error }}</p>{% endfor %}
+            </div>
+            {% endfor %}
+            {{ form.submit(class_='button button-dark button-full') }}
+        </form>
+        <p class="auth-switch">アカウントをお持ちでない方 <a href="{{ url_for('register') }}">ユーザー登録 ↗</a></p>
+    </div>
+</section>
 {% endblock %}

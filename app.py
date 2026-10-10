@@ -1,17 +1,18 @@
 from pathlib import Path
 import os
 import time
-from datetime import timedelta
+from datetime import timedelta, timezone
 
 import click
-from flask import Flask, render_template, redirect, url_for, flash, session, request
+from flask import Flask, render_template, redirect, url_for, flash, session, request, send_from_directory, abort
 from cachelib import FileSystemCache
 from dotenv import load_dotenv
 from flask_login import LoginManager, current_user, login_user, logout_user, login_required
 from flask_session import Session
 from flask_wtf.csrf import CSRFProtect, CSRFError
 from peewee import IntegrityError
-from forms import RegisterForm, LoginForm, LogoutForm
+from forms import RegisterForm, LoginForm, LogoutForm, PostForm
+from image_utils import save_post_image, ImageValidationError
 
 from models import Post, User, db
 
@@ -26,9 +27,12 @@ def initialize_database(database_path):
 def create_app(test_config=None):
     root = Path(__file__).resolve().parent
     load_dotenv(root / ".env")
-    app = Flask(__name__, static_folder=None)
+    app = Flask(__name__)
     app.config.from_mapping(
         DATABASE=Path(__file__).resolve().parent / "instance" / "app.sqlite3",
+        UPLOAD_FOLDER=root / "uploads" / "posts",
+        MAX_IMAGE_BYTES=5 * 1024 * 1024,
+        MAX_CONTENT_LENGTH=6 * 1024 * 1024,
         SECRET_KEY=os.environ.get("SECRET_KEY"),
         SESSION_TYPE="cachelib",
         SESSION_FILE_DIR=root / "instance" / "sessions",
@@ -43,6 +47,11 @@ def create_app(test_config=None):
         app.config.update(test_config)
     if not app.config["SECRET_KEY"]:
         raise RuntimeError("SECRET_KEYを環境変数または.envに設定してください。")
+    upload_folder = Path(app.config["UPLOAD_FOLDER"])
+    if not upload_folder.is_absolute():
+        upload_folder = root / upload_folder
+    app.config["UPLOAD_FOLDER"] = upload_folder
+    upload_folder.mkdir(parents=True, exist_ok=True)
     app.config["SESSION_CACHELIB"] = FileSystemCache(
         cache_dir=str(app.config["SESSION_FILE_DIR"]), threshold=0)
     Session(app)
@@ -65,7 +74,7 @@ def create_app(test_config=None):
         if now - last_active >= app.permanent_session_lifetime.total_seconds():
             logout_user()
             session.clear()
-        elif request.endpoint in {"post_index", "register", "login"} and request.method == "GET":
+        elif request.endpoint in {"post_index", "register", "login", "post_create"} and request.method == "GET":
             session["last_active"] = now
 
     # 期限切れを先に処理し、古いセッションのPOSTも拒否する。
@@ -80,11 +89,20 @@ def create_app(test_config=None):
 
     @app.context_processor
     def auth_forms():
-        return {"logout_form": LogoutForm()}
+        # エラーページでも巨大なPOST本文を再解析しない。
+        return {"logout_form": LogoutForm(formdata=None)}
 
     @app.errorhandler(CSRFError)
     def csrf_error(error):
         return render_template("errors/error.html", message="フォームの有効期限が切れたか、送信内容が不正です。画面を開き直してください。"), 400
+
+    @app.errorhandler(413)
+    def upload_too_large(error):
+        return render_template("errors/error.html", message="送信容量が大きすぎます。5MB以下の画像を選び直してください。", retry_upload=True), 413
+
+    @app.template_filter("japan_time")
+    def japan_time(value):
+        return value.replace(tzinfo=timezone.utc).astimezone(timezone(timedelta(hours=9))).strftime("%Y.%m.%d %H:%M")
 
     @app.teardown_request
     def close_database(error):
@@ -99,7 +117,43 @@ def create_app(test_config=None):
 
     @app.get("/")
     def post_index():
-        return render_template("posts/index.html")
+        posts = list(Post.select(Post, User).join(User).order_by(Post.created_at.desc(), Post.id.desc()))
+        return render_template("posts/index.html", posts=posts)
+
+    @app.route("/posts/new", methods=["GET", "POST"])
+    @login_required
+    def post_create():
+        form = PostForm()
+        if form.validate_on_submit():
+            try:
+                filename = save_post_image(form.photo.data, app.config["UPLOAD_FOLDER"], app.config["MAX_IMAGE_BYTES"])
+            except ImageValidationError as error:
+                form.photo.errors.append(str(error))
+            except OSError:
+                app.logger.exception("画像の保存に失敗しました。")
+                return render_template("errors/error.html", message="画像を保存できませんでした。時間をおいて再度お試しください。", retry_upload=True), 500
+            else:
+                try:
+                    with db.atomic():
+                        Post.create(user=current_user.id, image_filename=filename, caption=form.caption.data or '')
+                except Exception:
+                    app.logger.exception("投稿の保存に失敗しました。")
+                    try:
+                        (app.config["UPLOAD_FOLDER"] / filename).unlink(missing_ok=True)
+                    except OSError:
+                        app.logger.exception("未保存投稿の画像を削除できませんでした: %s", filename)
+                    return render_template("errors/error.html", message="投稿を保存できませんでした。時間をおいて再度お試しください。", retry_upload=True), 500
+                flash("写真を投稿しました。")
+                return redirect(url_for("post_index"))
+        return render_template("posts/new.html", form=form)
+
+    @app.get("/uploads/posts/<filename>")
+    def uploaded_file(filename):
+        if filename.startswith('.') or not Post.get_or_none(Post.image_filename == filename):
+            abort(404)
+        response = send_from_directory(app.config["UPLOAD_FOLDER"], filename)
+        response.headers['X-Content-Type-Options'] = 'nosniff'
+        return response
 
     @app.route("/register", methods=["GET", "POST"])
     def register():
