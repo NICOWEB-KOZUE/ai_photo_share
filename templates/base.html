@@ -6,6 +6,22 @@
     <title>写真共有アプリ</title>
 </head>
 <body>
+    <nav>
+        <a href="{{ url_for('post_index') }}">トップ</a>
+        {% if current_user.is_authenticated %}
+        <span>{{ current_user.username }} さん</span>
+        <form method="post" action="{{ url_for('logout') }}">
+            {{ logout_form.hidden_tag() }}
+            {{ logout_form.submit() }}
+        </form>
+        {% else %}
+        <a href="{{ url_for('register') }}">ユーザー登録</a>
+        <a href="{{ url_for('login') }}">ログイン</a>
+        {% endif %}
+    </nav>
+    {% for message in get_flashed_messages() %}
+    <p role="status">{{ message }}</p>
+    {% endfor %}
     <main>
         {% block content %}{% endblock %}
     </main>

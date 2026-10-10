@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>ユーザー登録</h1>
+<form method="post">
+    {{ form.hidden_tag() }}
+    {% for field in [form.username, form.email, form.password] %}
+    <p>{{ field.label }} {{ field() }}</p>
+    {% for error in field.errors %}<p role="alert">{{ error }}</p>{% endfor %}
+    {% endfor %}
+    <p>ユーザー名は1〜50文字（大文字・小文字を区別）。パスワードはちょうど4文字です。</p>
+    {{ form.submit() }}
+</form>
+<p><a href="{{ url_for('login') }}">ログインはこちら</a></p>
+{% endblock %}
